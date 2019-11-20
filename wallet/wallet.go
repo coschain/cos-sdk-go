@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/json"
+	"github.com/coschain/cos-sdk-go/account"
 	"github.com/coschain/cos-sdk-go/utils"
 	"github.com/kataras/go-errors"
 	"io/ioutil"
@@ -30,7 +31,7 @@ type Wallet interface {
 	Open(path string, password string) error
 	Add(name, privateKey string) error
 	Remove(name string) error
-	Account(name string) *Account
+	Account(name string) *account.Account
 	Close()
 }
 
