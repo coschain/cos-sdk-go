@@ -7,12 +7,17 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"encoding/json"
+	"github.com/coschain/contentos-go/prototype"
+	"github.com/coschain/contentos-go/rpc/pb"
 	"github.com/coschain/cos-sdk-go/account"
+	"github.com/coschain/cos-sdk-go/rpcclient"
 	"github.com/coschain/cos-sdk-go/utils"
 	"github.com/kataras/go-errors"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
+	"context"
 )
 
 type EncryptKeyStore struct {
@@ -31,23 +36,70 @@ type Wallet interface {
 	Open(path string, password string) error
 	Add(name, privateKey string) error
 	Remove(name string) error
-	Account(name string) *account.Account
+	Account(name string) *account.Account // name -> account
 	Close()
 }
 
+func (w *walletImpl) GetAccountByName(name string) (*grpcpb.AccountResponse,error) {
+	req := &grpcpb.GetAccountByNameRequest{AccountName: &prototype.AccountName{Value: name}}
+	return rpcclient.GetRpc().GetAccountByName(context.Background(), req)
+}
+
+func (w *walletImpl) GetFollowerListByName(name string, pageSize uint32) (*PageManager,error) {
+
+	start := &prototype.FollowerCreatedOrder{
+		Account:prototype.NewAccountName(name),
+		CreatedTime:&prototype.TimePointSec{UtcSeconds:0},
+		Follower:prototype.NewAccountName(""),
+	}
+	end := &prototype.FollowerCreatedOrder{
+		Account:prototype.NewAccountName(name),
+		CreatedTime:&prototype.TimePointSec{UtcSeconds:math.MaxUint32},
+		Follower:prototype.NewAccountName(""),
+	}
+
+
+	pm := NewPageManager(start,end,pageSize,nil,func(manager *PageManager) interface{} {
+		// find latest next page
+		if manager.CurrentPage() + 1 > manager.PageCount() {
+			return nil
+		}
+		page := manager.pageList[manager.CurrentPage()]
+		req := &grpcpb.GetFollowerListByNameRequest{
+			Start:page.Start.(*prototype.FollowerCreatedOrder),
+			End:page.End.(*prototype.FollowerCreatedOrder),
+			Limit:page.Limit,
+			LastOrder:page.LastOrder.(*prototype.FollowerCreatedOrder),
+		}
+
+		// call rpc
+		res,err := rpcclient.GetRpc().GetFollowerListByName(context.Background(),req)
+		if err != nil || len(res.FollowerList) == 0 {
+			return nil
+		}
+
+		// add new page for next query
+		lastOrder := res.FollowerList[len(res.FollowerList)-1].CreateOrder
+		manager.pageList = append(manager.pageList,&Page{Start:page.End,End:page.End,Limit:page.Limit,LastOrder:lastOrder})
+		manager.pageIndex++
+		return res
+	})
+	return pm,nil
+}
+
 type walletImpl struct {
-	accounts map[string]string
+	accounts map[string]*account.Account
 	password string
 	fullFileName string
 }
 
-func (w *walletImpl) Open(path, password string) error {
-	w.accounts = make(map[string]string)
+func (w *walletImpl) Open(pathToFile, password string) error {
+	w.accounts = make(map[string]*account.Account)
 
-	w.fullFileName = path
+	w.fullFileName = pathToFile
 	w.password = password
 
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(pathToFile); os.IsNotExist(err) {
 		return w.save()
 	} else {
 		return w.load()
@@ -55,7 +107,7 @@ func (w *walletImpl) Open(path, password string) error {
 }
 
 func (w *walletImpl) Add(name, privateKey string) error {
-	w.accounts[name] = privateKey
+	w.accounts[name] = account.NewAccount(privateKey)
 	return w.save()
 }
 
