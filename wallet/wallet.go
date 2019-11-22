@@ -59,12 +59,7 @@ func (w *walletImpl) GetFollowerListByName(name string, pageSize uint32) (*PageM
 	}
 
 
-	pm := NewPageManager(start,end,pageSize,nil,func(manager *PageManager) interface{} {
-		// find latest next page
-		if manager.CurrentPage() + 1 > manager.PageCount() {
-			return nil
-		}
-		page := manager.pageList[manager.CurrentPage()]
+	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
 		req := &grpcpb.GetFollowerListByNameRequest{
 			Start:page.Start.(*prototype.FollowerCreatedOrder),
 			End:page.End.(*prototype.FollowerCreatedOrder),
@@ -74,15 +69,15 @@ func (w *walletImpl) GetFollowerListByName(name string, pageSize uint32) (*PageM
 
 		// call rpc
 		res,err := rpcclient.GetRpc().GetFollowerListByName(context.Background(),req)
-		if err != nil || len(res.FollowerList) == 0 {
-			return nil
+		if err != nil {
+			return nil,nil,err
 		}
+		if len(res.FollowerList) == 0 {
+			return nil,nil,errors.New("empty result")
+		}
+	    lastOrder := res.FollowerList[len(res.FollowerList)-1].CreateOrder
 
-		// add new page for next query
-		lastOrder := res.FollowerList[len(res.FollowerList)-1].CreateOrder
-		manager.pageList = append(manager.pageList,&Page{Start:page.End,End:page.End,Limit:page.Limit,LastOrder:lastOrder})
-		manager.pageIndex++
-		return res
+		return res,lastOrder,nil
 	})
 	return pm,nil
 }
