@@ -15,6 +15,11 @@ type PageManager struct {
 	currentPage int
 	end         interface{}
 }
+
+// callback function for execute rpc call
+// return: rpc result
+// return: lastOrder of result
+// return: error msg
 type CallRpc func(page *Page) (interface{},interface{},error)
 
 func NewPageManager(start interface{}, end interface{}, limit uint32, lastOrder interface{}, rpcCallBack CallRpc) *PageManager {
