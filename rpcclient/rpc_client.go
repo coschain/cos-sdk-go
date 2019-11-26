@@ -3,19 +3,15 @@ package rpcclient
 import (
 	"github.com/coschain/contentos-go/rpc/pb"
 	"google.golang.org/grpc"
-	"sync"
 )
 
-var once sync.Once
 var rpcClient grpcpb.ApiServiceClient
 var oldConn *grpc.ClientConn
 
 func GetRpc() grpcpb.ApiServiceClient {
-	once.Do(func() {
-		if err := ConnectRpc("localhost:8888"); err != nil {
-			panic(err)
-		}
-	})
+	if rpcClient == nil {
+		panic("call ConnectRpc first")
+	}
 	return rpcClient
 }
 

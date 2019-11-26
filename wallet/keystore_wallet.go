@@ -8,6 +8,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"github.com/coschain/cos-sdk-go/account"
+	"github.com/coschain/cos-sdk-go/rpcclient"
 	"github.com/coschain/cos-sdk-go/utils"
 	"github.com/kataras/go-errors"
 	"io/ioutil"
@@ -28,8 +29,16 @@ type KeyStoreWallet struct {
 	fullFileName string
 }
 
-func (w *KeyStoreWallet) Open(pathToFile, password string) error {
+func NewKeyStoreWallet(ip string) *KeyStoreWallet {
+	if err := rpcclient.ConnectRpc(ip); err != nil {
+		return nil
+	}
+	w := &KeyStoreWallet{}
 	w.accounts = make(map[string]*account.Account)
+	return w
+}
+
+func (w *KeyStoreWallet) Open(pathToFile, password string) error {
 
 	w.fullFileName = pathToFile
 	w.password = password

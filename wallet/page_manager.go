@@ -14,6 +14,7 @@ type PageManager struct {
 	callFunc    CallRpc
 	currentPage int
 	end         interface{}
+	getKey GetKey
 }
 
 // callback function for execute rpc call
@@ -21,8 +22,9 @@ type PageManager struct {
 // return: lastOrder of result
 // return: error msg
 type CallRpc func(page *Page) (interface{},interface{},error)
+type GetKey func(interface{}) interface{}
 
-func NewPageManager(start interface{}, end interface{}, limit uint32, lastOrder interface{}, rpcCallBack CallRpc) *PageManager {
+func NewPageManager(start interface{}, end interface{}, limit uint32, lastOrder interface{}, rpcCallBack CallRpc, getKeyCallBack GetKey) *PageManager {
 	pm := &PageManager{}
 	p := &Page{
 		Start:start,
@@ -34,6 +36,7 @@ func NewPageManager(start interface{}, end interface{}, limit uint32, lastOrder 
 	pm.callFunc = rpcCallBack
 	pm.currentPage = -1
 	pm.end = end
+	pm.getKey = getKeyCallBack
 	return pm
 }
 
@@ -53,7 +56,7 @@ func (pm *PageManager) Next() (interface{},error) {
 
 	// add new page for next query
 	if requestPage + 1 == pm.PageCount() {
-		pm.AddPage(&Page{Start: lastOrder, End: pm.end, Limit: page.Limit, LastOrder: lastOrder})
+		pm.AddPage(&Page{Start: pm.getKey(lastOrder), End: pm.end, Limit: page.Limit, LastOrder: lastOrder})
 	}
 	pm.SetCurrentPage(requestPage)
 

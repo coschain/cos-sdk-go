@@ -49,11 +49,17 @@ func (w *BaseWallet) GetFollowerListByName(name string, pageSize uint32) (*PageM
 	}
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *prototype.FollowerCreatedOrder
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*prototype.FollowerCreatedOrder)
+		}
 		req := &grpcpb.GetFollowerListByNameRequest{
 			Start:page.Start.(*prototype.FollowerCreatedOrder),
 			End:page.End.(*prototype.FollowerCreatedOrder),
 			Limit:page.Limit,
-			LastOrder:page.LastOrder.(*prototype.FollowerCreatedOrder),
+			LastOrder:last,
 		}
 
 		// call rpc
@@ -67,6 +73,8 @@ func (w *BaseWallet) GetFollowerListByName(name string, pageSize uint32) (*PageM
 		lastOrder := res.FollowerList[len(res.FollowerList)-1].CreateOrder
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		return lastOrder
 	})
 	return pm,nil
 }
@@ -84,11 +92,17 @@ func (w *BaseWallet) GetFollowingListByName(name string, pageSize uint32) (*Page
 	}
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *prototype.FollowingCreatedOrder
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*prototype.FollowingCreatedOrder)
+		}
 		req := &grpcpb.GetFollowingListByNameRequest{
 			Start:page.Start.(*prototype.FollowingCreatedOrder),
 			End:page.End.(*prototype.FollowingCreatedOrder),
 			Limit:page.Limit,
-			LastOrder:page.LastOrder.(*prototype.FollowingCreatedOrder),
+			LastOrder:last,
 		}
 
 		// call rpc
@@ -102,6 +116,8 @@ func (w *BaseWallet) GetFollowingListByName(name string, pageSize uint32) (*Page
 		lastOrder := res.FollowingList[len(res.FollowingList)-1].CreateOrder
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		return lastOrder
 	})
 	return pm,nil
 }
@@ -168,10 +184,16 @@ func (w *BaseWallet) GetAccountListByBalance(startCoin,endCoin uint64, pageSize 
 	end := prototype.NewCoin(endCoin)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.AccountInfo
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.AccountInfo)
+		}
 		req := &grpcpb.GetAccountListByBalanceRequest{
 			Start:page.Start.(*prototype.Coin),
 			End:page.End.(*prototype.Coin),
-			LastAccount:page.LastOrder.(*grpcpb.AccountInfo),
+			LastAccount:last,
 			Limit:page.Limit,
 		}
 
@@ -186,6 +208,9 @@ func (w *BaseWallet) GetAccountListByBalance(startCoin,endCoin uint64, pageSize 
 		lastOrder := res.List[len(res.List)-1].Info
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.AccountInfo)
+		return v.Coin
 	})
 	return pm,nil
 }
@@ -195,10 +220,16 @@ func (w *BaseWallet) GetDailyTotalTrxInfo(startTime,endTime,pageSize uint32) (*P
 	end := prototype.NewTimePointSec(endTime)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.DailyTotalTrx
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.DailyTotalTrx)
+		}
 		req := &grpcpb.GetDailyTotalTrxRequest{
 			Start:page.Start.(*prototype.TimePointSec),
 			End:page.End.(*prototype.TimePointSec),
-			LastInfo:page.LastOrder.(*grpcpb.DailyTotalTrx),
+			LastInfo:last,
 			Limit:page.Limit,
 		}
 
@@ -213,6 +244,9 @@ func (w *BaseWallet) GetDailyTotalTrxInfo(startTime,endTime,pageSize uint32) (*P
 		lastOrder := res.List[len(res.List)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.DailyTotalTrx)
+		return v.Date
 	})
 	return pm,nil
 }
@@ -227,10 +261,16 @@ func (w *BaseWallet) GetTrxListByTime(startTime,endTime,pageSize uint32) (*PageM
 	end := prototype.NewTimePointSec(endTime)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.TrxInfo
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.TrxInfo)
+		}
 		req := &grpcpb.GetTrxListByTimeRequest{
 			Start:page.Start.(*prototype.TimePointSec),
 			End:page.End.(*prototype.TimePointSec),
-			LastInfo:page.LastOrder.(*grpcpb.TrxInfo),
+			LastInfo:last,
 			Limit:page.Limit,
 		}
 
@@ -245,6 +285,9 @@ func (w *BaseWallet) GetTrxListByTime(startTime,endTime,pageSize uint32) (*PageM
 		lastOrder := res.List[len(res.List)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.TrxInfo)
+		return v.BlockTime
 	})
 	return pm,nil
 }
@@ -254,10 +297,16 @@ func (w *BaseWallet) GetPostListByCreateTime(startTime,endTime,pageSize uint32) 
 	end := prototype.NewTimePointSec(endTime)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.PostResponse
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.PostResponse)
+		}
 		req := &grpcpb.GetPostListByCreateTimeRequest{
 			Start:page.Start.(*prototype.TimePointSec),
 			End:page.End.(*prototype.TimePointSec),
-			LastPost:page.LastOrder.(*grpcpb.PostResponse),
+			LastPost:last,
 			Limit:page.Limit,
 		}
 
@@ -272,6 +321,9 @@ func (w *BaseWallet) GetPostListByCreateTime(startTime,endTime,pageSize uint32) 
 		lastOrder := res.PostedList[len(res.PostedList)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.PostResponse)
+		return v.Created
 	})
 	return pm,nil
 }
@@ -281,10 +333,16 @@ func (w *BaseWallet) GetPostListByName(name string,pageSize uint32) (*PageManage
 	end := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(math.MaxUint32)}
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.PostResponse
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.PostResponse)
+		}
 		req := &grpcpb.GetPostListByNameRequest{
 			Start:page.Start.(*prototype.UserPostCreateOrder),
 			End:page.End.(*prototype.UserPostCreateOrder),
-			LastPost:page.LastOrder.(*grpcpb.PostResponse),
+			LastPost:last,
 			Limit:page.Limit,
 		}
 
@@ -299,6 +357,9 @@ func (w *BaseWallet) GetPostListByName(name string,pageSize uint32) (*PageManage
 		lastOrder := res.PostedList[len(res.PostedList)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.PostResponse)
+		return &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:v.Created}
 	})
 	return pm,nil
 }
@@ -313,11 +374,17 @@ func (w *BaseWallet) GetUserTrxListByTime(name string,startTime,endTime,pageSize
 	end := prototype.NewTimePointSec(endTime)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.TrxInfo
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.TrxInfo)
+		}
 		req := &grpcpb.GetUserTrxListByTimeRequest{
 			Name:prototype.NewAccountName(name),
 			Start:page.Start.(*prototype.TimePointSec),
 			End:page.End.(*prototype.TimePointSec),
-			LastTrx:page.LastOrder.(*grpcpb.TrxInfo),
+			LastTrx:last,
 			Limit:page.Limit,
 		}
 
@@ -332,6 +399,9 @@ func (w *BaseWallet) GetUserTrxListByTime(name string,startTime,endTime,pageSize
 		lastOrder := res.TrxList[len(res.TrxList)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.TrxInfo)
+		return v.BlockTime
 	})
 	return pm,nil
 }
@@ -367,10 +437,16 @@ func (w *BaseWallet) GetAccountListByCreTime(startTime,endTime, pageSize uint32)
 	end := prototype.NewTimePointSec(endTime)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.AccountInfo
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.AccountInfo)
+		}
 		req := &grpcpb.GetAccountListByCreTimeRequest{
 			Start:page.Start.(*prototype.TimePointSec),
 			End:page.End.(*prototype.TimePointSec),
-			LastAccount:page.LastOrder.(*grpcpb.AccountInfo),
+			LastAccount:last,
 			Limit:page.Limit,
 		}
 
@@ -385,6 +461,9 @@ func (w *BaseWallet) GetAccountListByCreTime(startTime,endTime, pageSize uint32)
 		lastOrder := res.List[len(res.List)-1].Info
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.AccountInfo)
+		return v.CreatedTime
 	})
 	return pm,nil
 }
@@ -402,10 +481,16 @@ func (w *BaseWallet) GetContractListByTime(startTime,endTime, pageSize uint32) (
 	end := prototype.NewTimePointSec(endTime)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.ContractInfo
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.ContractInfo)
+		}
 		req := &grpcpb.GetContractListByTimeRequest{
 			Start:page.Start.(*prototype.TimePointSec),
 			End:page.End.(*prototype.TimePointSec),
-			LastContract:page.LastOrder.(*grpcpb.ContractInfo),
+			LastContract:last,
 			Limit:page.Limit,
 		}
 
@@ -420,6 +505,9 @@ func (w *BaseWallet) GetContractListByTime(startTime,endTime, pageSize uint32) (
 		lastOrder := res.ContractList[len(res.ContractList)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.ContractInfo)
+		return v.CreateTime
 	})
 	return pm,nil
 }
@@ -429,10 +517,16 @@ func (w *BaseWallet) GetBlockProducerListByVoteCount(pageSize uint32) (*PageMana
 	end := prototype.NewVest(math.MaxUint64)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.BlockProducerResponse
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.BlockProducerResponse)
+		}
 		req := &grpcpb.GetBlockProducerListByVoteCountRequest{
 			Start:page.Start.(*prototype.Vest),
 			End:page.End.(*prototype.Vest),
-			LastBlockProducer:page.LastOrder.(*grpcpb.BlockProducerResponse),
+			LastBlockProducer:last,
 			Limit:page.Limit,
 		}
 
@@ -447,6 +541,9 @@ func (w *BaseWallet) GetBlockProducerListByVoteCount(pageSize uint32) (*PageMana
 		lastOrder := res.BlockProducerList[len(res.BlockProducerList)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.BlockProducerResponse)
+		return v.BpVest.VoteVest
 	})
 	return pm,nil
 }
@@ -456,10 +553,16 @@ func (w *BaseWallet) GetPostListByVest(pageSize uint32) (*PageManager,error) {
 	end := prototype.NewVest(math.MaxUint64)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.PostResponse
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.PostResponse)
+		}
 		req := &grpcpb.GetPostListByVestRequest{
 			Start:page.Start.(*prototype.Vest),
 			End:page.End.(*prototype.Vest),
-			LastPost:page.LastOrder.(*grpcpb.PostResponse),
+			LastPost:last,
 			Limit:page.Limit,
 		}
 
@@ -474,6 +577,9 @@ func (w *BaseWallet) GetPostListByVest(pageSize uint32) (*PageManager,error) {
 		lastOrder := res.PostList[len(res.PostList)-1]
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.PostResponse)
+		return v.Rewards // is this atrribute ?
 	})
 	return pm,nil
 }
@@ -530,10 +636,16 @@ func (w *BaseWallet) GetAccountListByVest(pageSize uint32) (*PageManager,error) 
 	end := prototype.NewVest(math.MaxUint64)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
+		var last *grpcpb.AccountInfo
+		if page.LastOrder == nil {
+			last = nil
+		} else {
+			last = page.LastOrder.(*grpcpb.AccountInfo)
+		}
 		req := &grpcpb.GetAccountListByVestRequest{
 			Start:page.Start.(*prototype.Vest),
 			End:page.End.(*prototype.Vest),
-			LastAccount:page.LastOrder.(*grpcpb.AccountInfo),
+			LastAccount:last,
 			Limit:page.Limit,
 		}
 
@@ -548,6 +660,9 @@ func (w *BaseWallet) GetAccountListByVest(pageSize uint32) (*PageManager,error) 
 		lastOrder := res.List[len(res.List)-1].Info
 
 		return res,lastOrder,nil
+	},func(lastOrder interface{}) interface{} {
+		v := lastOrder.(*grpcpb.AccountInfo)
+		return v.Vest
 	})
 	return pm,nil
 }
