@@ -18,10 +18,6 @@ func NewMemWallet(ip string) *MemWallet {
 	return w
 }
 
-func (w *MemWallet) Open(pathToFile, password string) {
-	w.accounts = make(map[string]*account.Account)
-}
-
 func (w *MemWallet) Close() {
 	w.accounts = nil
 }

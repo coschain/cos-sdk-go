@@ -278,7 +278,8 @@ func (a *Account) VoteByTicket(name string,postId,count uint64) (*grpcpb.Broadca
 	return a.broadcastTrx(a.PrivateKey,voteByTicketOp)
 }
 
-const tmpChainName = "main"
+// todo handle chain id
+const tmpChainName = "dev"
 
 func (a *Account) broadcastTrx(privateKey string, op ...interface{}) (*grpcpb.BroadcastTrxResponse,error) {
 	signTx, err := utils.GenerateSignedTxAndValidate(rpcclient.GetRpc(), privateKey, tmpChainName,op...)

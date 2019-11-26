@@ -18,6 +18,10 @@ func (w *BaseWallet) Account(name string) *account.Account {
 	return w.accounts[name]
 }
 
+func (w *BaseWallet) GetAllAccounts() map[string]*account.Account {
+	return w.accounts
+}
+
 func (w *BaseWallet) QueryTableContent(owner,contract,table,field string, count uint32, reverse bool) (*grpcpb.TableContentResponse,error) {
 	req := &grpcpb.GetTableContentRequest{
 		Owner:owner,
