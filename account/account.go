@@ -12,12 +12,12 @@ import (
 )
 
 type Account struct {
-	privateKey string
+	PrivateKey string
 }
 
 func NewAccount(privateKey string) *Account {
 	return &Account{
-		privateKey:privateKey,
+		PrivateKey: privateKey,
 	}
 }
 
@@ -31,7 +31,7 @@ func (a *Account) CreateAccount(creator string, fee uint64, newAccountName, pubK
 		JsonMetadata:meta,
 	}
 
-	return a.broadcastTrx(a.privateKey,acOp)
+	return a.broadcastTrx(a.PrivateKey,acOp)
 }
 
 func (a *Account) BpRegist(owner, bpUrl, bpDesc, pubKeyStr string, fee, proposedStaminaFree, tpsExpected, bpEpochDuration, ticketPrice, bpPerTicketWeight uint64, bpTopN uint32) (*grpcpb.BroadcastTrxResponse, error) {
@@ -51,7 +51,7 @@ func (a *Account) BpRegist(owner, bpUrl, bpDesc, pubKeyStr string, fee, proposed
 			PerTicketWeight:    bpPerTicketWeight,
 		},
 	}
-	return a.broadcastTrx(a.privateKey,bpRegistOp)
+	return a.broadcastTrx(a.PrivateKey,bpRegistOp)
 }
 
 func (a *Account) BpEnable(name string, cancel bool) (*grpcpb.BroadcastTrxResponse, error) {
@@ -59,7 +59,7 @@ func (a *Account) BpEnable(name string, cancel bool) (*grpcpb.BroadcastTrxRespon
 		Owner:      &prototype.AccountName{Value: name},
 		Cancel:     cancel,
 	}
-	return a.broadcastTrx(a.privateKey,bpEnableOp)
+	return a.broadcastTrx(a.PrivateKey,bpEnableOp)
 }
 
 func (a *Account) BpVote(voter, bp string, cancel bool) (*grpcpb.BroadcastTrxResponse, error) {
@@ -68,7 +68,7 @@ func (a *Account) BpVote(voter, bp string, cancel bool) (*grpcpb.BroadcastTrxRes
 		BlockProducer: &prototype.AccountName{Value: bp},
 		Cancel:  cancel,
 	}
-	return a.broadcastTrx(a.privateKey,bpVoteOp)
+	return a.broadcastTrx(a.PrivateKey,bpVoteOp)
 }
 
 func (a *Account) Post(author,title,content string,tags []string, postBeneficiaryRoute map[string]int) (*grpcpb.BroadcastTrxResponse, error) {
@@ -105,7 +105,7 @@ func (a *Account) Post(author,title,content string,tags []string, postBeneficiar
 		Tags:          tags,
 		Beneficiaries: beneficiaries,
 	}
-	return a.broadcastTrx(a.privateKey,postOp)
+	return a.broadcastTrx(a.PrivateKey,postOp)
 }
 
 func (a *Account) Reply(author,content string, postId uint64, replyBeneficiaryRoute map[string]int) (*grpcpb.BroadcastTrxResponse, error) {
@@ -139,7 +139,7 @@ func (a *Account) Reply(author,content string, postId uint64, replyBeneficiaryRo
 		ParentUuid:    postId,
 		Beneficiaries: beneficiaries,
 	}
-	return a.broadcastTrx(a.privateKey,replyOp)
+	return a.broadcastTrx(a.PrivateKey,replyOp)
 }
 
 func (a *Account) Follow(follower,following string, cancel bool) (*grpcpb.BroadcastTrxResponse, error) {
@@ -148,7 +148,7 @@ func (a *Account) Follow(follower,following string, cancel bool) (*grpcpb.Broadc
 		FAccount: &prototype.AccountName{Value: following},
 		Cancel:   cancel,
 	}
-	return a.broadcastTrx(a.privateKey,followOp)
+	return a.broadcastTrx(a.PrivateKey,followOp)
 }
 
 func (a *Account) Vote(voter string, idx uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -156,7 +156,7 @@ func (a *Account) Vote(voter string, idx uint64) (*grpcpb.BroadcastTrxResponse, 
 		Voter: &prototype.AccountName{Value: voter},
 		Idx:   idx,
 	}
-	return a.broadcastTrx(a.privateKey,voterOp)
+	return a.broadcastTrx(a.PrivateKey,voterOp)
 }
 
 func (a *Account) Transfer(from,to string,amount uint64, memo string) (*grpcpb.BroadcastTrxResponse, error) {
@@ -166,7 +166,7 @@ func (a *Account) Transfer(from,to string,amount uint64, memo string) (*grpcpb.B
 		Amount: prototype.NewCoin(amount),
 		Memo:   memo,
 	}
-	return a.broadcastTrx(a.privateKey,transferOp)
+	return a.broadcastTrx(a.PrivateKey,transferOp)
 }
 
 func (a *Account) ContractDeploy(owner,cname string, abi,code []byte, upgradeable bool, contractUrl,contractDesc string ) (*grpcpb.BroadcastTrxResponse, error) {
@@ -190,7 +190,7 @@ func (a *Account) ContractDeploy(owner,cname string, abi,code []byte, upgradeabl
 		Url: contractUrl,
 		Describe: contractDesc,
 	}
-	return a.broadcastTrx(a.privateKey,contractDeployOp)
+	return a.broadcastTrx(a.PrivateKey,contractDeployOp)
 }
 
 func (a *Account) ContractApply(caller,owner,cname,params,method string,fee uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -202,7 +202,7 @@ func (a *Account) ContractApply(caller,owner,cname,params,method string,fee uint
 		Params:   params,
 		Method:	  method,
 	}
-	return a.broadcastTrx(a.privateKey,contractApplyOp)
+	return a.broadcastTrx(a.PrivateKey,contractApplyOp)
 }
 
 func (a *Account) ConvertVest(from string, amount uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -210,7 +210,7 @@ func (a *Account) ConvertVest(from string, amount uint64) (*grpcpb.BroadcastTrxR
 		From:   &prototype.AccountName{Value: from},
 		Amount: prototype.NewVest(uint64(amount)),
 	}
-	return a.broadcastTrx(a.privateKey,convertVestOp)
+	return a.broadcastTrx(a.PrivateKey,convertVestOp)
 }
 
 func (a *Account) Stake(from,to string, amount uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -219,7 +219,7 @@ func (a *Account) Stake(from,to string, amount uint64) (*grpcpb.BroadcastTrxResp
 		To:   &prototype.AccountName{Value: to},
 		Amount:    prototype.NewCoin(amount),
 	}
-	return a.broadcastTrx(a.privateKey,stakeOp)
+	return a.broadcastTrx(a.PrivateKey,stakeOp)
 }
 
 func (a *Account) UnStake(creditor,debtor string, amount uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -228,7 +228,7 @@ func (a *Account) UnStake(creditor,debtor string, amount uint64) (*grpcpb.Broadc
 		Debtor:   &prototype.AccountName{Value: debtor},
 		Amount:    prototype.NewCoin(amount),
 	}
-	return a.broadcastTrx(a.privateKey,unStakeOp)
+	return a.broadcastTrx(a.PrivateKey,unStakeOp)
 }
 
 func (a *Account) BpUpdate(name string,bpUpdateStaminaFree,bpUpdateTpsExpected,bpUpdateEpochDuration,bpUpdatePerTicketWeight,bpUpdateCreateAccountFee,bpUpdatePerTicketPrice uint64,bpUpdateTopN uint32) (*grpcpb.BroadcastTrxResponse, error) {
@@ -245,7 +245,7 @@ func (a *Account) BpUpdate(name string,bpUpdateStaminaFree,bpUpdateTpsExpected,b
 		Owner:                 &prototype.AccountName{Value: name},
 		Props:                 props,
 	}
-	return a.broadcastTrx(a.privateKey,bpUpdateOp)
+	return a.broadcastTrx(a.PrivateKey,bpUpdateOp)
 }
 
 func (a *Account) AccountUpdate(name,pubKeyStr string) (*grpcpb.BroadcastTrxResponse, error) {
@@ -258,7 +258,7 @@ func (a *Account) AccountUpdate(name,pubKeyStr string) (*grpcpb.BroadcastTrxResp
 		Owner:         &prototype.AccountName{Value: name},
 		PubKey:        pubKey,
 	}
-	return a.broadcastTrx(a.privateKey,accountUpdateOp)
+	return a.broadcastTrx(a.PrivateKey,accountUpdateOp)
 }
 
 func (a *Account) AcquireTicket(name string, count uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -266,7 +266,7 @@ func (a *Account) AcquireTicket(name string, count uint64) (*grpcpb.BroadcastTrx
 		Account: &prototype.AccountName{Value:name},
 		Count: count,
 	}
-	return a.broadcastTrx(a.privateKey,acquireTicketOp)
+	return a.broadcastTrx(a.PrivateKey,acquireTicketOp)
 }
 
 func (a *Account) VoteByTicket(name string,postId,count uint64) (*grpcpb.BroadcastTrxResponse, error) {
@@ -275,7 +275,7 @@ func (a *Account) VoteByTicket(name string,postId,count uint64) (*grpcpb.Broadca
 		Idx: postId,
 		Count: count,
 	}
-	return a.broadcastTrx(a.privateKey,voteByTicketOp)
+	return a.broadcastTrx(a.PrivateKey,voteByTicketOp)
 }
 
 const tmpChainName = "main"
