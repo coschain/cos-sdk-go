@@ -39,12 +39,12 @@ func (w *BaseWallet) GetFollowerListByName(name string, pageSize uint32) (*PageM
 
 	start := &prototype.FollowerCreatedOrder{
 		Account:prototype.NewAccountName(name),
-		CreatedTime:&prototype.TimePointSec{UtcSeconds:0},
+		CreatedTime:&prototype.TimePointSec{UtcSeconds:math.MaxUint32},
 		Follower:prototype.NewAccountName(""),
 	}
 	end := &prototype.FollowerCreatedOrder{
 		Account:prototype.NewAccountName(name),
-		CreatedTime:&prototype.TimePointSec{UtcSeconds:math.MaxUint32},
+		CreatedTime:&prototype.TimePointSec{UtcSeconds:0},
 		Follower:prototype.NewAccountName(""),
 	}
 
@@ -82,12 +82,12 @@ func (w *BaseWallet) GetFollowerListByName(name string, pageSize uint32) (*PageM
 func (w *BaseWallet) GetFollowingListByName(name string, pageSize uint32) (*PageManager,error) {
 	start := &prototype.FollowingCreatedOrder{
 		Account:prototype.NewAccountName(name),
-		CreatedTime:&prototype.TimePointSec{UtcSeconds:0},
+		CreatedTime:&prototype.TimePointSec{UtcSeconds:math.MaxUint32},
 		Following:prototype.NewAccountName(""),
 	}
 	end := &prototype.FollowingCreatedOrder{
 		Account:prototype.NewAccountName(name),
-		CreatedTime:&prototype.TimePointSec{UtcSeconds:math.MaxUint32},
+		CreatedTime:&prototype.TimePointSec{UtcSeconds:0},
 		Following:prototype.NewAccountName(""),
 	}
 
@@ -148,8 +148,8 @@ func (w *BaseWallet) GetPostListByCreated(startTime uint32, endTime uint32, limi
 
 func (w *BaseWallet) GetReplyListByPostId(postid uint64, startTime uint32, endTime uint32, limit uint32) (*grpcpb.GetReplyListByPostIdResponse,error) {
 	req := &grpcpb.GetReplyListByPostIdRequest{
-		Start:&prototype.ReplyCreatedOrder{ParentId:postid,Created:prototype.NewTimePointSec(0)},
-		End:&prototype.ReplyCreatedOrder{ParentId:postid,Created:prototype.NewTimePointSec(math.MaxUint32)},
+		Start:&prototype.ReplyCreatedOrder{ParentId:postid,Created:prototype.NewTimePointSec(math.MaxUint32)},
+		End:&prototype.ReplyCreatedOrder{ParentId:postid,Created:prototype.NewTimePointSec(0)},
 		Limit:limit,
 	}
 	return rpcclient.GetRpc().GetReplyListByPostId(context.Background(),req)
@@ -329,8 +329,8 @@ func (w *BaseWallet) GetPostListByCreateTime(startTime,endTime,pageSize uint32) 
 }
 
 func (w *BaseWallet) GetPostListByName(name string,pageSize uint32) (*PageManager,error) {
-	start := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(0)}
-	end := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(math.MaxUint32)}
+	start := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(math.MaxUint32)}
+	end := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(0)}
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
 		var last *grpcpb.PostResponse
@@ -513,8 +513,8 @@ func (w *BaseWallet) GetContractListByTime(startTime,endTime, pageSize uint32) (
 }
 
 func (w *BaseWallet) GetBlockProducerListByVoteCount(pageSize uint32) (*PageManager,error) {
-	start := prototype.NewVest(0)
-	end := prototype.NewVest(math.MaxUint64)
+	start := prototype.NewVest(math.MaxUint64)
+	end := prototype.NewVest(0)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
 		var last *grpcpb.BlockProducerResponse
@@ -549,8 +549,8 @@ func (w *BaseWallet) GetBlockProducerListByVoteCount(pageSize uint32) (*PageMana
 }
 
 func (w *BaseWallet) GetPostListByVest(pageSize uint32) (*PageManager,error) {
-	start := prototype.NewVest(0)
-	end := prototype.NewVest(math.MaxUint64)
+	start := prototype.NewVest(math.MaxUint64)
+	end := prototype.NewVest(0)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
 		var last *grpcpb.PostResponse
@@ -632,8 +632,8 @@ func (w *BaseWallet) GetNodeRunningVersion() (*grpcpb.GetNodeRunningVersionRespo
 }
 
 func (w *BaseWallet) GetAccountListByVest(pageSize uint32) (*PageManager,error) {
-	start := prototype.NewVest(0)
-	end := prototype.NewVest(math.MaxUint64)
+	start := prototype.NewVest(math.MaxUint64)
+	end := prototype.NewVest(0)
 
 	pm := NewPageManager(start,end,pageSize,nil,func(page *Page) (interface{},interface{},error) {
 		var last *grpcpb.AccountInfo
