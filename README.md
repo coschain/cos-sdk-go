@@ -33,8 +33,6 @@ Once `Open()` is called, you can import your Contentos accounts.
 #### Import private key
 
 ```go
-String accountName = "sdktest";
-String privateKey = "3diUftkv1rsSn45bTNBZgtaYbSstX9eHZfz3WGoX7r7UBsFgLV";
 wallet.Add("yourname","3diUftkv1rsSn45bTNBZgtaYbSstX9eHZfz3WGoX7r7UBsFgLV")
 ```
 
@@ -58,8 +56,8 @@ wallet.Add(acct,"3diUftkv1rsSn45bTNBZgtaYbSstX9eHZfz3WGoX7r7UBsFgLV")
 
 benificiary := make(map[string]int)
 benificiary[acct] = 2
-
 tags := []string{"1","2"}
+
 res ,err := wallet.Account(acct).Post(acc,"test sdk","sdk",tags,benificiary)
 if err != nil {
     return err
@@ -81,6 +79,33 @@ fmt.Println(res)
 ```
 
 Unlike sending transactions, wallet don't need a private key to make queries.
+
+### List Query
+
+List Query return a PageManager for easy iterate list 
+
+```go
+pm,err := wallet.GetAccountListByBalance(1000,1,5)
+if err != nil {
+	return err
+}
+
+for {
+    v,err := pm.Next()
+	if err != nil {
+		return err
+	}
+
+    // different query need specific type cast
+    list := v.(*grpcpb.GetAccountListResponse)
+	if len(list.List) == 0 {
+		return errors.New("no more results")
+	}
+	for _,l := range list.List {
+		fmt.Println(l)
+	}
+}
+```
 
 ### Close a wallet
 
