@@ -6,12 +6,14 @@ import (
 	"github.com/coschain/cos-sdk-go/account"
 	"github.com/coschain/cos-sdk-go/rpcclient"
 	"context"
+	"github.com/coschain/cos-sdk-go/utils"
 	"math"
 	"errors"
 )
 
 type BaseWallet struct {
 	accounts map[string]*account.Account
+	chainId utils.ChainId
 }
 
 func (w *BaseWallet) Account(name string) *account.Account {

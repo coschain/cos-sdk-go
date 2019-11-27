@@ -29,12 +29,13 @@ type KeyStoreWallet struct {
 	fullFileName string
 }
 
-func NewKeyStoreWallet(ip string) *KeyStoreWallet {
+func NewKeyStoreWallet(ip string, chainId utils.ChainId) *KeyStoreWallet {
 	if err := rpcclient.ConnectRpc(ip); err != nil {
 		return nil
 	}
 	w := &KeyStoreWallet{}
 	w.accounts = make(map[string]*account.Account)
+	w.chainId = chainId
 	return w
 }
 
@@ -55,7 +56,9 @@ func (w *KeyStoreWallet) Close() {
 }
 
 func (w *KeyStoreWallet) Add(name, privateKey string) error {
-	w.accounts[name] = account.NewAccount(privateKey)
+	w.accounts[name] = account.NewAccount(privateKey, func() utils.ChainId {
+		return w.chainId
+	})
 	return w.save()
 }
 
@@ -105,6 +108,13 @@ func (w *KeyStoreWallet) load() error {
 	dec := gob.NewDecoder(&buf)
 	if err := dec.Decode(&w.accounts); err != nil {
 		return err
+	}
+
+	// set call back func
+	for _,v := range w.accounts {
+		v.GetChainIdCallBack = func() utils.ChainId {
+			return w.chainId
+		}
 	}
 
 	return nil

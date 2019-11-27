@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"fmt"
 	"github.com/coschain/contentos-go/common"
 	"github.com/coschain/contentos-go/prototype"
@@ -8,16 +9,19 @@ import (
 	"github.com/coschain/cos-sdk-go/rpcclient"
 	"github.com/coschain/cos-sdk-go/utils"
 	"github.com/kataras/go-errors"
-	"context"
 )
+
+type GetChainId func() utils.ChainId
 
 type Account struct {
 	PrivateKey string
+	GetChainIdCallBack GetChainId
 }
 
-func NewAccount(privateKey string) *Account {
+func NewAccount(privateKey string, callBack GetChainId) *Account {
 	return &Account{
 		PrivateKey: privateKey,
+		GetChainIdCallBack:callBack,
 	}
 }
 
@@ -278,11 +282,8 @@ func (a *Account) VoteByTicket(name string,postId,count uint64) (*grpcpb.Broadca
 	return a.broadcastTrx(a.PrivateKey,voteByTicketOp)
 }
 
-// todo handle chain id
-const tmpChainName = "dev"
-
 func (a *Account) broadcastTrx(privateKey string, op ...interface{}) (*grpcpb.BroadcastTrxResponse,error) {
-	signTx, err := utils.GenerateSignedTxAndValidate(rpcclient.GetRpc(), privateKey, tmpChainName,op...)
+	signTx, err := utils.GenerateSignedTxAndValidate(rpcclient.GetRpc(), privateKey, string(a.GetChainIdCallBack()),op...)
 
 	req := &grpcpb.BroadcastTrxRequest{Transaction: signTx}
 	res, err := rpcclient.GetRpc().BroadcastTrx(context.Background(),req)
