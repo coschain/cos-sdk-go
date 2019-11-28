@@ -282,6 +282,17 @@ func (a *Account) VoteByTicket(name string,postId,count uint64) (*grpcpb.Broadca
 	return a.broadcastTrx(a.PrivateKey,voteByTicketOp)
 }
 
+
+func (a *Account) TransferToVest(from, to string, amount uint64, memo string) (*grpcpb.BroadcastTrxResponse, error) {
+	transferToVestOp := &prototype.TransferToVestOperation{
+		From:prototype.NewAccountName(from),
+		To:prototype.NewAccountName(to),
+		Amount:prototype.NewCoin(amount),
+		Memo:memo,
+	}
+	return a.broadcastTrx(a.PrivateKey,transferToVestOp)
+}
+
 func (a *Account) broadcastTrx(privateKey string, op ...interface{}) (*grpcpb.BroadcastTrxResponse,error) {
 	signTx, err := utils.GenerateSignedTxAndValidate(rpcclient.GetRpc(), privateKey, string(a.GetChainIdCallBack()),op...)
 
