@@ -110,18 +110,18 @@ if err != nil {
 
 for {
     v,err := pm.Next()
-        if err != nil {
-	    return err
-	}
+    if err != nil {
+	return err
+    }
 
     // different query need specific type cast
     list := v.(*grpcpb.GetAccountListResponse)
-	if len(list.List) == 0 {
-	    return errors.New("no more results")
-	}
-	for _,l := range list.List {
-	    fmt.Println(l)
-	}
+    if len(list.List) == 0 {
+	return errors.New("no more results")
+    }
+    for _,l := range list.List {
+        fmt.Println(l)
+    }
 }
 ```
 
