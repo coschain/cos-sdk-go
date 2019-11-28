@@ -33,3 +33,12 @@ func (w *MemWallet) Add(name, privateKey string) {
 func (w *MemWallet) Remove(name string) {
 	delete(w.accounts,name)
 }
+
+func (w *MemWallet) AddByMnemonic(name, mnemonic string) error {
+	_,pri,err := w.GenerateKeyPairFromMnemonic(mnemonic)
+	if err != nil {
+		return err
+	}
+	w.Add(name,pri)
+	return nil
+}

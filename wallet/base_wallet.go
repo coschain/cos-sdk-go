@@ -16,6 +16,14 @@ type BaseWallet struct {
 	chainId utils.ChainId
 }
 
+func (w *BaseWallet) GenerateNewMnemonic() (string,error) {
+	return utils.GenerateNewMnemonic()
+}
+
+func (w *BaseWallet) GenerateKeyPairFromMnemonic(mnemonic string) (string,string,error) {
+	return utils.GenerateKeyPairFromMnemonic(mnemonic)
+}
+
 func (w *BaseWallet) Account(name string) *account.Account {
 	return w.accounts[name]
 }

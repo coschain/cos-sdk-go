@@ -62,6 +62,14 @@ func (w *KeyStoreWallet) Add(name, privateKey string) error {
 	return w.save()
 }
 
+func (w *KeyStoreWallet) AddByMnemonic(name, mnemonic string) error {
+	_,pri,err := w.GenerateKeyPairFromMnemonic(mnemonic)
+	if err != nil {
+		return err
+	}
+	return w.Add(name,pri)
+}
+
 func (w *KeyStoreWallet) Remove(name string) error {
 	delete(w.accounts,name)
 	return w.save()
