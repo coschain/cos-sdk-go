@@ -6,10 +6,23 @@ Go client library for Contentos blockchain.
 
 ### Create a wallet
 
-`Wallet` is the main entry of the library. To create a wallet and connect a certain Contentos node,
+`Wallet` is the main entry of the library. To create a wallet and connect a certain Contentos node.
 
 ```go
-wallet := NewKeyStoreWallet("127.0.0.1:8888")
+wallet := NewKeyStoreWallet("127.0.0.1:8888",utils.Dev)
+```
+The param utils.Dev  is Chain id you want to use, there are three possible Chain id:
+
+```go
+utils.Dev
+utils.Test
+utils.Main
+```
+
+Also a memory wallet, this wallet keep all data in memory without a kehystore file:
+
+```go
+w := NewMemWallet("127.0.0.1:8888", utils.Dev)
 ```
 
 ### Open a keystore
@@ -92,17 +105,17 @@ if err != nil {
 
 for {
     v,err := pm.Next()
-	if err != nil {
-		return err
+        if err != nil {
+	    return err
 	}
 
     // different query need specific type cast
     list := v.(*grpcpb.GetAccountListResponse)
 	if len(list.List) == 0 {
-		return errors.New("no more results")
+	    return errors.New("no more results")
 	}
 	for _,l := range list.List {
-		fmt.Println(l)
+	    fmt.Println(l)
 	}
 }
 ```
