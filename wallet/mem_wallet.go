@@ -11,7 +11,6 @@ type MemWallet struct {
 }
 
 func NewMemWallet(ip string, chainId utils.ChainId) *MemWallet {
-	utils.GlobalChainId = chainId
 	if err := rpcclient.ConnectRpc(ip); err != nil {
 		return nil
 	}

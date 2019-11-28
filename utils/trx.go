@@ -19,8 +19,6 @@ const (
 	Dev ChainId = "dev"
 )
 
-var GlobalChainId ChainId
-
 func GenerateSignedTxAndValidate(client grpcpb.ApiServiceClient, privateKey string, chainName string, ops ...interface{}) (*prototype.SignedTransaction, error) {
 	chainId := prototype.ChainId{ Value:common.GetChainIdByName(chainName)}
 	return GenerateSignedTxAndValidate2(client, privateKey, chainId, ops...)
