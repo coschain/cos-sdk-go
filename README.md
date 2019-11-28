@@ -78,6 +78,8 @@ if err != nil {
 fmt.Println(res.Invoice)
 ```
 
+All supported kinds of transactions are listed in the [account.go](account/account.go).
+
 ### Query
 
 Contentos provides with rich information of the blockchain. All of these can be retrieved by `Wallet`'s query methods.
@@ -92,6 +94,8 @@ fmt.Println(res)
 ```
 
 Unlike sending transactions, wallet don't need a private key to make queries.
+
+All possible Query method listed in the [base_wallet.go](wallet/base_wallet.go)
 
 ### List Query
 
