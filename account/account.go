@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/coschain/contentos-go/common"
+	"github.com/coschain/contentos-go/common/constants"
 	"github.com/coschain/contentos-go/prototype"
 	"github.com/coschain/contentos-go/rpc/pb"
 	"github.com/coschain/cos-sdk-go/rpcclient"
@@ -83,12 +84,12 @@ func (a *Account) Post(author,title,content string,tags []string, postBeneficiar
 			return nil,errors.New("weight should greater than zero")
 		}
 
-		if v > 10 {
-			return nil,errors.New("either beneficiary route should not greater than 10%")
+		if v > constants.PERCENT {
+			return nil,errors.New("either beneficiary route should not greater than 100%")
 		}
 
-		if accumulateWeight > 10 {
-			return nil,errors.New("accumulated weight should not greater than 10%")
+		if accumulateWeight > constants.PERCENT {
+			return nil,errors.New("accumulated weight should not greater than 100%")
 		}
 
 		accumulateWeight += v
@@ -120,12 +121,12 @@ func (a *Account) Reply(author,content string, postId uint64, replyBeneficiaryRo
 			return nil,errors.New("weight should greater than zero")
 		}
 
-		if v > 10 {
-			return nil,errors.New("either beneficiary route should not greater than 10%")
+		if v > constants.PERCENT {
+			return nil,errors.New("either beneficiary route should not greater than 100%")
 		}
 
-		if accumulateWeight > 10 {
-			return nil,errors.New("accumulated weight should not greater than 10%")
+		if accumulateWeight > constants.PERCENT {
+			return nil,errors.New("accumulated weight should not greater than 100%")
 		}
 
 		accumulateWeight += v
