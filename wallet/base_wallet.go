@@ -16,22 +16,27 @@ type BaseWallet struct {
 	chainId utils.ChainId
 }
 
+// generate mnemonic, wallet can transfer mnemonic to private key
 func (w *BaseWallet) GenerateNewMnemonic() (string,error) {
 	return utils.GenerateNewMnemonic()
 }
 
+// generate private key and public key from mnemonic
 func (w *BaseWallet) GenerateKeyPairFromMnemonic(mnemonic string) (string,string,error) {
 	return utils.GenerateKeyPairFromMnemonic(mnemonic)
 }
 
+// return account object
 func (w *BaseWallet) Account(name string) *account.Account {
 	return w.accounts[name]
 }
 
+// return a map represent all accounts in wallet
 func (w *BaseWallet) GetAllAccounts() map[string]*account.Account {
 	return w.accounts
 }
 
+// return content of a contract' table
 func (w *BaseWallet) QueryTableContent(owner,contract,table,field string, count uint32, reverse bool) (*grpcpb.TableContentResponse,error) {
 	req := &grpcpb.GetTableContentRequest{
 		Owner:owner,
@@ -44,11 +49,15 @@ func (w *BaseWallet) QueryTableContent(owner,contract,table,field string, count 
 	return rpcclient.GetRpc().QueryTableContent(context.Background(),req)
 }
 
+// return account information by name
 func (w *BaseWallet) GetAccountByName(name string) (*grpcpb.AccountResponse,error) {
 	req := &grpcpb.GetAccountByNameRequest{AccountName: &prototype.AccountName{Value: name}}
 	return rpcclient.GetRpc().GetAccountByName(context.Background(), req)
 }
 
+// get one's all followers
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetFollowerListByNameResponse
 func (w *BaseWallet) GetFollowerListByName(name string, pageSize uint32) (*PageManager,error) {
 
 	start := &prototype.FollowerCreatedOrder{
@@ -93,6 +102,9 @@ func (w *BaseWallet) GetFollowerListByName(name string, pageSize uint32) (*PageM
 	return pm,nil
 }
 
+// get one's all followerings
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetFollowingListByNameResponse
 func (w *BaseWallet) GetFollowingListByName(name string, pageSize uint32) (*PageManager,error) {
 	start := &prototype.FollowingCreatedOrder{
 		Account:prototype.NewAccountName(name),
@@ -136,6 +148,7 @@ func (w *BaseWallet) GetFollowingListByName(name string, pageSize uint32) (*Page
 	return pm,nil
 }
 
+// return one's follower and following count
 func (w *BaseWallet) GetFollowCountByName(name string) (*grpcpb.GetFollowCountByNameResponse,error) {
 	req := &grpcpb.GetFollowCountByNameRequest{
 		AccountName:prototype.NewAccountName(name),
@@ -143,6 +156,7 @@ func (w *BaseWallet) GetFollowCountByName(name string) (*grpcpb.GetFollowCountBy
 	return rpcclient.GetRpc().GetFollowCountByName(context.Background(),req)
 }
 
+// return block producers according to size
 func (w *BaseWallet) GetBlockProducerList(size uint32) (*grpcpb.GetBlockProducerListResponse,error) {
 	req := &grpcpb.GetBlockProducerListRequest{
 		Start:prototype.NewAccountName(""),
@@ -151,6 +165,7 @@ func (w *BaseWallet) GetBlockProducerList(size uint32) (*grpcpb.GetBlockProducer
 	return rpcclient.GetRpc().GetBlockProducerList(context.Background(),req)
 }
 
+// return post list that created time between startTime and endTime
 func (w *BaseWallet) GetPostListByCreated(startTime uint32, endTime uint32, limit uint32) (*grpcpb.GetPostListByCreatedResponse,error) {
 	req := &grpcpb.GetPostListByCreatedRequest{
 		Start:&prototype.PostCreatedOrder{Created:prototype.NewTimePointSec(startTime)},
@@ -160,6 +175,7 @@ func (w *BaseWallet) GetPostListByCreated(startTime uint32, endTime uint32, limi
 	return rpcclient.GetRpc().GetPostListByCreated(context.Background(),req)
 }
 
+// return post's reply list that created time between startTime and endTime
 func (w *BaseWallet) GetReplyListByPostId(postid uint64, startTime uint32, endTime uint32, limit uint32) (*grpcpb.GetReplyListByPostIdResponse,error) {
 	req := &grpcpb.GetReplyListByPostIdRequest{
 		Start:&prototype.ReplyCreatedOrder{ParentId:postid,Created:prototype.NewTimePointSec(math.MaxUint32)},
@@ -169,16 +185,19 @@ func (w *BaseWallet) GetReplyListByPostId(postid uint64, startTime uint32, endTi
 	return rpcclient.GetRpc().GetReplyListByPostId(context.Background(),req)
 }
 
+// return a block's all transactions
 func (w *BaseWallet) GetBlockTransactionsByNum(blockNum uint32) (*grpcpb.GetBlockTransactionsByNumResponse,error) {
 	req := &grpcpb.GetBlockTransactionsByNumRequest{BlockNum:blockNum}
 	return rpcclient.GetRpc().GetBlockTransactionsByNum(context.Background(),req)
 }
 
+// return chain's state
 func (w *BaseWallet) GetChainState() (*grpcpb.GetChainStateResponse,error) {
 	req := &grpcpb.NonParamsRequest{}
 	return rpcclient.GetRpc().GetChainState(context.Background(),req)
 }
 
+// return blocks that blocknumber between start and end
 func (w *BaseWallet) GetBlockList(start, end uint64, limit uint32) (*grpcpb.GetBlockListResponse,error) {
 	req := &grpcpb.GetBlockListRequest{
 		Start:start,
@@ -188,11 +207,15 @@ func (w *BaseWallet) GetBlockList(start, end uint64, limit uint32) (*grpcpb.GetB
 	return rpcclient.GetRpc().GetBlockList(context.Background(),req)
 }
 
+// return a signed block
 func (w *BaseWallet) GetSignedBlock(blockNum uint64) (*grpcpb.GetSignedBlockResponse,error) {
 	req := &grpcpb.GetSignedBlockRequest{Start:blockNum}
 	return rpcclient.GetRpc().GetSignedBlock(context.Background(),req)
 }
 
+// get accounts who's balance between startCoin and endCoin
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetAccountListResponse
 func (w *BaseWallet) GetAccountListByBalance(startCoin,endCoin uint64, pageSize uint32) (*PageManager,error) {
 	start := prototype.NewCoin(startCoin)
 	end := prototype.NewCoin(endCoin)
@@ -229,6 +252,9 @@ func (w *BaseWallet) GetAccountListByBalance(startCoin,endCoin uint64, pageSize 
 	return pm,nil
 }
 
+// get daily transaction that time startTime and endTime
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetDailyTotalTrxResponse
 func (w *BaseWallet) GetDailyTotalTrxInfo(startTime,endTime,pageSize uint32) (*PageManager,error) {
 	start := prototype.NewTimePointSec(startTime)
 	end := prototype.NewTimePointSec(endTime)
@@ -265,11 +291,15 @@ func (w *BaseWallet) GetDailyTotalTrxInfo(startTime,endTime,pageSize uint32) (*P
 	return pm,nil
 }
 
+// get transaction by a certain transaction id
 func (w *BaseWallet) GetTrxInfoById(trxId *prototype.Sha256) (*grpcpb.GetTrxInfoByIdResponse,error) {
 	req := &grpcpb.GetTrxInfoByIdRequest{TrxId:trxId}
 	return rpcclient.GetRpc().GetTrxInfoById(context.Background(),req)
 }
 
+// get transactions that created time between startTime and endTime
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetTrxListByTimeResponse
 func (w *BaseWallet) GetTrxListByTime(startTime,endTime,pageSize uint32) (*PageManager,error) {
 	start := prototype.NewTimePointSec(startTime)
 	end := prototype.NewTimePointSec(endTime)
@@ -306,6 +336,9 @@ func (w *BaseWallet) GetTrxListByTime(startTime,endTime,pageSize uint32) (*PageM
 	return pm,nil
 }
 
+// get posts that created time between startTime and endTime
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetPostListByCreateTimeResponse
 func (w *BaseWallet) GetPostListByCreateTime(startTime,endTime,pageSize uint32) (*PageManager,error) {
 	start := prototype.NewTimePointSec(startTime)
 	end := prototype.NewTimePointSec(endTime)
@@ -342,6 +375,9 @@ func (w *BaseWallet) GetPostListByCreateTime(startTime,endTime,pageSize uint32) 
 	return pm,nil
 }
 
+// get one's all posts
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetPostListByCreateTimeResponse
 func (w *BaseWallet) GetPostListByName(name string,pageSize uint32) (*PageManager,error) {
 	start := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(math.MaxUint32)}
 	end := &prototype.UserPostCreateOrder{Author:prototype.NewAccountName(name),Create:prototype.NewTimePointSec(0)}
@@ -378,11 +414,15 @@ func (w *BaseWallet) GetPostListByName(name string,pageSize uint32) (*PageManage
 	return pm,nil
 }
 
+// return transaction count by hour
 func (w *BaseWallet) TrxStatByHour(hours uint32) (*grpcpb.TrxStatByHourResponse,error) {
 	req := &grpcpb.TrxStatByHourRequest{Hours:hours}
 	return rpcclient.GetRpc().TrxStatByHour(context.Background(),req)
 }
 
+// get one's transactions that created time between startTime and endTime
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetUserTrxListByTimeResponse
 func (w *BaseWallet) GetUserTrxListByTime(name string,startTime,endTime,pageSize uint32) (*PageManager,error) {
 	start := prototype.NewTimePointSec(startTime)
 	end := prototype.NewTimePointSec(endTime)
@@ -420,6 +460,7 @@ func (w *BaseWallet) GetUserTrxListByTime(name string,startTime,endTime,pageSize
 	return pm,nil
 }
 
+// return post information by post id
 func (w *BaseWallet) GetPostInfoById(postId uint64) (*grpcpb.GetPostInfoByIdResponse,error) {
 	req := &grpcpb.GetPostInfoByIdRequest{
 		PostId:postId,
@@ -429,6 +470,7 @@ func (w *BaseWallet) GetPostInfoById(postId uint64) (*grpcpb.GetPostInfoByIdResp
 	return rpcclient.GetRpc().GetPostInfoById(context.Background(),req)
 }
 
+// get contract information by owner and contract
 func (w *BaseWallet) GetContractInfo(owner,contract string) (*grpcpb.GetContractInfoResponse,error) {
 	req := &grpcpb.GetContractInfoRequest{
 		Owner:prototype.NewAccountName(owner),
@@ -439,6 +481,7 @@ func (w *BaseWallet) GetContractInfo(owner,contract string) (*grpcpb.GetContract
 	return rpcclient.GetRpc().GetContractInfo(context.Background(),req)
 }
 
+// check if a transaction is irreversible
 func (w *BaseWallet) GetBlkIsIrreversibleByTxId(trxId *prototype.Sha256) (*grpcpb.GetBlkIsIrreversibleByTxIdResponse,error) {
 	req := &grpcpb.GetBlkIsIrreversibleByTxIdRequest{
 		TrxId:trxId,
@@ -446,6 +489,9 @@ func (w *BaseWallet) GetBlkIsIrreversibleByTxId(trxId *prototype.Sha256) (*grpcp
 	return rpcclient.GetRpc().GetBlkIsIrreversibleByTxId(context.Background(),req)
 }
 
+// get accounts that created time between startTime and endTime
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetAccountListResponse
 func (w *BaseWallet) GetAccountListByCreTime(startTime,endTime, pageSize uint32) (*PageManager,error) {
 	start := prototype.NewTimePointSec(startTime)
 	end := prototype.NewTimePointSec(endTime)
@@ -482,6 +528,7 @@ func (w *BaseWallet) GetAccountListByCreTime(startTime,endTime, pageSize uint32)
 	return pm,nil
 }
 
+// return daily stat information
 func (w *BaseWallet) GetDailyStats(dapp string,days uint32) (*grpcpb.GetDailyStatsResponse,error) {
 	req := &grpcpb.GetDailyStatsRequest{
 		Dapp:dapp,
@@ -490,6 +537,9 @@ func (w *BaseWallet) GetDailyStats(dapp string,days uint32) (*grpcpb.GetDailySta
 	return rpcclient.GetRpc().GetDailyStats(context.Background(),req)
 }
 
+// get contracts that created time between startTime and endTime
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetContractListResponse
 func (w *BaseWallet) GetContractListByTime(startTime,endTime, pageSize uint32) (*PageManager,error) {
 	start := prototype.NewTimePointSec(startTime)
 	end := prototype.NewTimePointSec(endTime)
@@ -526,6 +576,9 @@ func (w *BaseWallet) GetContractListByTime(startTime,endTime, pageSize uint32) (
 	return pm,nil
 }
 
+// get block producers, order by vote count
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetBlockProducerListResponse
 func (w *BaseWallet) GetBlockProducerListByVoteCount(pageSize uint32) (*PageManager,error) {
 	start := prototype.NewVest(math.MaxUint64)
 	end := prototype.NewVest(0)
@@ -562,6 +615,9 @@ func (w *BaseWallet) GetBlockProducerListByVoteCount(pageSize uint32) (*PageMana
 	return pm,nil
 }
 
+// get posts, order by vest
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetPostListByVestResponse
 func (w *BaseWallet) GetPostListByVest(pageSize uint32) (*PageManager,error) {
 	start := prototype.NewVest(math.MaxUint64)
 	end := prototype.NewVest(0)
@@ -598,6 +654,7 @@ func (w *BaseWallet) GetPostListByVest(pageSize uint32) (*PageManager,error) {
 	return pm,nil
 }
 
+// estimate how many gas a transaction will cost
 func (w *BaseWallet) EstimateStamina(transaction *prototype.SignedTransaction) (*grpcpb.EsimateResponse,error) {
 	req := &grpcpb.EsimateRequest{
 		Transaction:transaction,
@@ -605,11 +662,13 @@ func (w *BaseWallet) EstimateStamina(transaction *prototype.SignedTransaction) (
 	return rpcclient.GetRpc().EstimateStamina(context.Background(),req)
 }
 
+// return a node's network neighbours
 func (w *BaseWallet) GetNodeNeighbours() (*grpcpb.GetNodeNeighboursResponse,error) {
 	req := &grpcpb.NonParamsRequest{}
 	return rpcclient.GetRpc().GetNodeNeighbours(context.Background(),req)
 }
 
+// return a list that who stake for a account
 func (w *BaseWallet) GetMyStakers(name string, size uint32) (*grpcpb.GetMyStakerListByNameResponse,error) {
 	req := &grpcpb.GetMyStakerListByNameRequest{
 		Start:&prototype.StakeRecordReverse{
@@ -625,6 +684,7 @@ func (w *BaseWallet) GetMyStakers(name string, size uint32) (*grpcpb.GetMyStaker
 	return rpcclient.GetRpc().GetMyStakers(context.Background(),req)
 }
 
+// return a list that a account has stake for someone
 func (w *BaseWallet) GetMyStakes(name string, size uint32) (*grpcpb.GetMyStakeListByNameResponse,error) {
 	req := &grpcpb.GetMyStakeListByNameRequest{
 		Start:&prototype.StakeRecord{
@@ -640,11 +700,15 @@ func (w *BaseWallet) GetMyStakes(name string, size uint32) (*grpcpb.GetMyStakeLi
 	return rpcclient.GetRpc().GetMyStakes(context.Background(),req)
 }
 
+// return node version
 func (w *BaseWallet) GetNodeRunningVersion() (*grpcpb.GetNodeRunningVersionResponse,error) {
 	req := &grpcpb.NonParamsRequest{}
 	return rpcclient.GetRpc().GetNodeRunningVersion(context.Background(),req)
 }
 
+// get accounts, order by vest
+// pageSize : the amount of every page
+// use page manager's Next() to get value and type cast to GetAccountListResponse
 func (w *BaseWallet) GetAccountListByVest(pageSize uint32) (*PageManager,error) {
 	start := prototype.NewVest(math.MaxUint64)
 	end := prototype.NewVest(0)
@@ -681,21 +745,25 @@ func (w *BaseWallet) GetAccountListByVest(pageSize uint32) (*PageManager,error) 
 	return pm,nil
 }
 
+// return a block producer information
 func (w *BaseWallet) GetBlockProducerByName(name string) (*grpcpb.BlockProducerResponse, error) {
 	req := &grpcpb.GetBlockProducerByNameRequest{BpName:prototype.NewAccountName(name)}
 	return rpcclient.GetRpc().GetBlockProducerByName(context.Background(),req)
 }
 
+// return a account information by public key
 func (w *BaseWallet) GetAccountByPubKey(pubKey string) (*grpcpb.AccountResponse, error) {
 	req := &grpcpb.GetAccountByPubKeyRequest{PublicKey:pubKey}
 	return rpcclient.GetRpc().GetAccountByPubKey(context.Background(),req)
 }
 
+// return a block bft information
 func (w *BaseWallet) GetBlockBFTInfoByNum(blockNum uint64) (*grpcpb.GetBlockBFTInfoByNumResponse, error) {
 	req := &grpcpb.GetBlockBFTInfoByNumRequest{BlockNum:blockNum}
 	return rpcclient.GetRpc().GetBlockBFTInfoByNum(context.Background(),req)
 }
 
+// return app table record information
 func (w *BaseWallet) GetAppTableRecord(table,key string) (*grpcpb.GetAppTableRecordResponse,error) {
 	req := &grpcpb.GetAppTableRecordRequest{
 		TableName:table,
@@ -704,6 +772,7 @@ func (w *BaseWallet) GetAppTableRecord(table,key string) (*grpcpb.GetAppTableRec
 	return rpcclient.GetRpc().GetAppTableRecord(context.Background(),req)
 }
 
+// return block producer's voters
 func (w *BaseWallet) GetBlockProducerVoterList(name string) (*grpcpb.GetBlockProducerVoterListResponse,error) {
 	req := &grpcpb.GetBlockProducerVoterListRequest{
 		BlockProducer:prototype.NewAccountName(name),
