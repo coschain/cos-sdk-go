@@ -165,15 +165,14 @@ func (w *KeyStoreWallet) seal(data *EncryptKeyStore) error {
 
 	// I knew there is a problem when user create a pair key but using a name which have been occupied.
 	// fixme
-
+	if w.fullFileName == "" {
+		return errNotOpen
+	}
 	path := filepath.Join(w.fullFileName)
 	keyJson, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
 	err = ioutil.WriteFile(path, keyJson, 0600)
-	if err != nil {
-		return errNotOpen
-	}
-	return nil
+	return err
 }
