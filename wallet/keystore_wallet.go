@@ -16,6 +16,10 @@ import (
 	"path/filepath"
 )
 
+var (
+	errNotOpen = errors.New("shoud call Open and specify key store file path firstly")
+)
+
 type EncryptKeyStore struct {
 	CipherText string // encrypted privkey
 	Iv         string // the iv
@@ -168,5 +172,8 @@ func (w *KeyStoreWallet) seal(data *EncryptKeyStore) error {
 		return err
 	}
 	err = ioutil.WriteFile(path, keyJson, 0600)
+	if err != nil {
+		return errNotOpen
+	}
 	return nil
 }
