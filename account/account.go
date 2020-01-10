@@ -298,7 +298,9 @@ func (a *Account) TransferToVest(to string, amount uint64, memo string) (*grpcpb
 
 func (a *Account) broadcastTrx(privateKey string, op ...interface{}) (*grpcpb.BroadcastTrxResponse,error) {
 	signTx, err := utils.GenerateSignedTxAndValidate(rpcclient.GetRpc(), privateKey, string(a.GetChainIdCallBack()),op...)
-
+	if err != nil {
+		return nil,err
+	}
 	req := &grpcpb.BroadcastTrxRequest{Transaction: signTx}
 	res, err := rpcclient.GetRpc().BroadcastTrx(context.Background(),req)
 	return res,err

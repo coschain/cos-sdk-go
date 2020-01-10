@@ -16,6 +16,20 @@ type BaseWallet struct {
 	chainId utils.ChainId
 }
 
+func (w *BaseWallet) GenerateNewKeyPair() (string, string, error) {
+	privKey, err := prototype.GenerateNewKey()
+	if err != nil {
+		return "", "", err
+	}
+	pubKey, err := privKey.PubKey()
+	if err != nil {
+		return "", "", err
+	}
+	privKeyStr := privKey.ToWIF()
+	pubKeyStr := pubKey.ToWIF()
+	return pubKeyStr, privKeyStr, nil
+}
+
 // generate mnemonic, wallet can transfer mnemonic to private key
 func (w *BaseWallet) GenerateNewMnemonic() (string,error) {
 	return utils.GenerateNewMnemonic()
