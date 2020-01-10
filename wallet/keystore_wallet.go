@@ -56,7 +56,7 @@ func (w *KeyStoreWallet) Close() {
 }
 
 func (w *KeyStoreWallet) Add(name, privateKey string) error {
-	w.accounts[name] = account.NewAccount(privateKey, func() utils.ChainId {
+	w.accounts[name] = account.NewAccount(name, privateKey, func() utils.ChainId {
 		return w.chainId
 	})
 	return w.save()

@@ -25,7 +25,7 @@ func (w *MemWallet) Close() {
 }
 
 func (w *MemWallet) Add(name, privateKey string) {
-	w.accounts[name] = account.NewAccount(privateKey, func() utils.ChainId {
+	w.accounts[name] = account.NewAccount(name, privateKey, func() utils.ChainId {
 		return w.chainId
 	})
 }
