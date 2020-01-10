@@ -40,6 +40,9 @@ func NewPageManager(start interface{}, end interface{}, limit uint32, lastOrder 
 	return pm
 }
 
+// query next page based on current page information
+// query chain by rpc
+// add new page information for next page
 func (pm *PageManager) Next() (interface{},error) {
 	// find page
 	requestPage := pm.CurrentPage()+1

@@ -16,6 +16,7 @@ type BaseWallet struct {
 	chainId utils.ChainId
 }
 
+// generate new public key and private key
 func (w *BaseWallet) GenerateNewKeyPair() (string, string, error) {
 	privKey, err := prototype.GenerateNewKey()
 	if err != nil {
