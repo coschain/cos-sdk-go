@@ -1,14 +1,14 @@
 package wallet
 
 import (
+	"context"
+	"errors"
 	"github.com/coschain/contentos-go/prototype"
 	"github.com/coschain/contentos-go/rpc/pb"
 	"github.com/coschain/cos-sdk-go/account"
 	"github.com/coschain/cos-sdk-go/rpcclient"
-	"context"
 	"github.com/coschain/cos-sdk-go/utils"
 	"math"
-	"errors"
 )
 
 type BaseWallet struct {
@@ -795,4 +795,29 @@ func (w *BaseWallet) GetBlockProducerVoterList(name string) (*grpcpb.GetBlockPro
 		LastVoter:nil,
 	}
 	return rpcclient.GetRpc().GetBlockProducerVoterList(context.Background(),req)
+}
+
+func (w *BaseWallet) GetVestDelegationOrders(name string, isLender bool, pageSize uint32) (*PageManager,error) {
+	pm := NewPageManager(nil, nil, pageSize, uint64(0), func(page *Page) (interface{}, interface{}, error) {
+		req := &grpcpb.GetVestDelegationOrderListRequest{
+			Account:              prototype.NewAccountName(name),
+			IsFrom:               isLender,
+			Limit:                page.Limit,
+			LastOrderId:          page.LastOrder.(uint64),
+		}
+		res, err := rpcclient.GetRpc().GetVestDelegationOrderList(context.Background(),req)
+		lastOrder := uint64(0)
+		if err == nil {
+			if orderCount := len(res.GetOrders()); orderCount > 0 {
+				lastOrder = res.GetOrders()[orderCount - 1].GetId()
+			} else {
+				err = errors.New("empty result")
+			}
+		}
+		return res, lastOrder, err
+
+	}, func(lastOrder interface{}) interface{} {
+		return nil
+	})
+	return pm, nil
 }

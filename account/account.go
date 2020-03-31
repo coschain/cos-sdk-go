@@ -296,6 +296,24 @@ func (a *Account) TransferToVest(to string, amount uint64, memo string) (*grpcpb
 	return a.broadcastTrx(a.PrivateKey,transferToVestOp)
 }
 
+func (a *Account) DelegateVest(to string, amount uint64, expiration uint64) (*grpcpb.BroadcastTrxResponse, error) {
+	delegateVestOp := &prototype.DelegateVestOperation{
+		From:prototype.NewAccountName(a.Name),
+		To:prototype.NewAccountName(to),
+		Amount:prototype.NewVest(amount),
+		Expiration:expiration,
+	}
+	return a.broadcastTrx(a.PrivateKey,delegateVestOp)
+}
+
+func (a *Account) UnDelegateVest(orderId uint64) (*grpcpb.BroadcastTrxResponse, error) {
+	unDelegateVestOp := &prototype.UnDelegateVestOperation{
+		Account:prototype.NewAccountName(a.Name),
+		OrderId:orderId,
+	}
+	return a.broadcastTrx(a.PrivateKey,unDelegateVestOp)
+}
+
 func (a *Account) broadcastTrx(privateKey string, op ...interface{}) (*grpcpb.BroadcastTrxResponse,error) {
 	signTx, err := utils.GenerateSignedTxAndValidate(rpcclient.GetRpc(), privateKey, string(a.GetChainIdCallBack()),op...)
 	if err != nil {
